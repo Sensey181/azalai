@@ -1,0 +1,32 @@
+{
+  "plan": [
+    { "day": 1, "session": 1 },
+    { "day": 2, "session": 2 },
+    { "day": 3, "session": 3 },
+    { "day": 4, "session": 4 },
+    { "day": 5, "session": 1 },
+    { "day": 6, "session": 2 },
+    { "day": 7, "session": 4 },
+    { "day": 8, "session": 3 },
+    { "day": 9, "session": 1 },
+    { "day": 10, "session": 2 },
+    { "day": 11, "session": 4 },
+    { "day": 12, "session": 3 },
+    { "day": 13, "session": 1 },
+    { "day": 14, "session": 4 },
+    { "day": 15, "session": 2 },
+    { "day": 16, "session": 3 },
+    { "day": 17, "session": 1 },
+    { "day": 18, "session": 4 },
+    { "day": 19, "session": 2 },
+    { "day": 20, "session": 3 },
+    { "day": 21, "session": 4 },
+    { "day": 22, "session": 1 },
+    { "day": 23, "session": 2 },
+    { "day": 24, "session": 3 },
+    { "day": 25, "session": 4 },
+    { "day": 26, "session": 1 },
+    { "day": 27, "session": 2 },
+    { "day": 28, "session": 4 }
+  ]
+}
