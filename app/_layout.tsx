@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import React from 'react';
 import { View } from 'react-native';
 
 // This is the custom component for the central button
@@ -81,7 +80,7 @@ export default function TabLayout() {
         name="achievements" // Achievements
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="trophy-outline" size={size} color={color} />
+            <Ionicons name="videocam-outline" size={size} color={color} />
           ),
         }}
       />
@@ -89,7 +88,7 @@ export default function TabLayout() {
         name="analysis" // Analysis
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="videocam-outline" size={size} color={color} />
+            <Ionicons name="trophy-outline" size={size} color={color} />
           ),
         }}
       />
