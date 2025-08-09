@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router'; // Import the router
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Dimensions,
@@ -67,15 +68,14 @@ const DayDetailHeader = ({ day }: { day: DayPlan | null }) => {
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const { width } = Dimensions.get('window');
-// The container has 20 padding on each side (40 total)
 const CONTAINER_HORIZONTAL_PADDING = 40;
-// The space between each calendar cell
 const CELL_GAP = 6;
-// Calculate the size of each cell. We subtract the total gap space from the available width.
 const CELL_SIZE = Math.floor((width - CONTAINER_HORIZONTAL_PADDING - (CELL_GAP * 6)) / 7);
 
 export default function PlanningScreen() {
   const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
+  const router = useRouter(); // Initialize the router to navigate
+  const isRestDay = selectedDay?.session === 4;
 
   const calendarData = useMemo(() => {
     const today = new Date();
@@ -136,22 +136,43 @@ export default function PlanningScreen() {
   return (
     <View style={styles.container}>
       <DayDetailHeader day={selectedDay} />
-      <View style={styles.weekHeader}>
-        {WEEK_DAYS.map(day => (
-          <Text key={day} style={styles.weekDayText}>{day}</Text>
-        ))}
+      <View>
+        <View style={styles.weekHeader}>
+          {WEEK_DAYS.map(day => (
+            <Text key={day} style={styles.weekDayText}>{day}</Text>
+          ))}
+        </View>
+        <FlatList
+          data={calendarData}
+          renderItem={renderDay}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={7}
+          extraData={selectedDay}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          ItemSeparatorComponent={() => <View style={{ height: CELL_GAP }} />}
+        />
       </View>
-      <FlatList
-        data={calendarData}
-        renderItem={renderDay}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={7}
-        extraData={selectedDay}
-        // This is the key fix. It tells the list how to space the columns.
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
-        // We add vertical spacing between rows here.
-        ItemSeparatorComponent={() => <View style={{ height: CELL_GAP }} />}
-      />
+
+      {/* --- BUTTON CONTAINER --- */}
+      <View style={styles.buttonContainer}>
+        {selectedDay && (
+          <TouchableOpacity
+            style={[styles.startButton, isRestDay && styles.startButtonDisabled]}
+            onPress={() => !isRestDay && router.push('/')}
+            disabled={isRestDay}
+          >
+            <Text style={styles.startButtonText}>
+              {isRestDay ? "Enjoy Your Rest" : "Start Workout"}
+            </Text>
+            <Ionicons 
+              name={isRestDay ? "moon-outline" : "arrow-forward-circle-outline"} 
+              size={24} 
+              color="white" 
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      {/* ----------------------- */}
     </View>
   );
 }
@@ -161,7 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     paddingTop: 60,
-    paddingHorizontal: CONTAINER_HORIZONTAL_PADDING / 2, // Use the constant here
+    paddingHorizontal: CONTAINER_HORIZONTAL_PADDING / 2,
   },
   headerContainer: {
     marginBottom: 20,
@@ -195,14 +216,14 @@ const styles = StyleSheet.create({
   },
   weekHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Use space-between to align with the grid
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   weekDayText: {
     color: '#888',
     fontSize: 14,
     fontWeight: '600',
-    width: CELL_SIZE, // Ensure header text aligns with cells
+    width: CELL_SIZE,
     textAlign: 'center',
   },
   dayCell: {
@@ -212,7 +233,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    // REMOVED MARGINS, as spacing is now handled by the FlatList
   },
   dayCellEmpty: {
     width: CELL_SIZE,
@@ -241,5 +261,29 @@ const styles = StyleSheet.create({
   sessionText: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  // New and updated styles
+  buttonContainer: {
+    flex: 1, // This makes the container take up all available vertical space
+    justifyContent: 'center', // This centers the button vertically within the container
+    paddingBottom: 20, // Add some padding from the absolute bottom
+  },
+  startButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#A020F0',
+    paddingVertical: 15,
+    borderRadius: 15,
+    // Removed margin, as spacing is handled by the container
+  },
+  startButtonDisabled: {
+    backgroundColor: '#6b7280',
+  },
+  startButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
   },
 });
