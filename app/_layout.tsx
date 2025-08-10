@@ -92,6 +92,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="session"
+        options={{
+          href: null, // This hides it from the tab bar
+        }}
+      />
     </Tabs>
   );
 }
