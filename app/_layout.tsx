@@ -80,7 +80,7 @@ export default function TabLayout() {
         name="achievements" // Achievements
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="videocam-outline" size={size} color={color} />
+            <Ionicons name="trophy-outline" size={size} color={color} />
           ),
         }}
       />
@@ -88,7 +88,7 @@ export default function TabLayout() {
         name="analysis" // Analysis
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="trophy-outline" size={size} color={color} />
+            <Ionicons name="videocam-outline" size={size} color={color} />
           ),
         }}
       />

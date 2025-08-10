@@ -1,0 +1,64 @@
+{
+  "history": [
+    {
+      "date": "2025-08-09",
+      "session": 1,
+      "durationMinutes": 45,
+      "personalBest": true
+    },
+    {
+      "date": "2025-08-08",
+      "session": 3,
+      "durationMinutes": 30,
+      "personalBest": false
+    },
+    {
+      "date": "2025-08-06",
+      "session": 2,
+      "durationMinutes": 60,
+      "personalBest": false
+    },
+    {
+      "date": "2025-08-05",
+      "session": 1,
+      "durationMinutes": 40,
+      "personalBest": false
+    },
+    {
+      "date": "2025-08-03",
+      "session": 3,
+      "durationMinutes": 35,
+      "personalBest": true
+    },
+    {
+      "date": "2025-08-02",
+      "session": 1,
+      "durationMinutes": 50,
+      "personalBest": true
+    },
+    {
+      "date": "2025-07-31",
+      "session": 2,
+      "durationMinutes": 55,
+      "personalBest": false
+    },
+    {
+      "date": "2025-07-30",
+      "session": 3,
+      "durationMinutes": 25,
+      "personalBest": false
+    },
+    {
+      "date": "2025-07-28",
+      "session": 1,
+      "durationMinutes": 45,
+      "personalBest": false
+    },
+    {
+      "date": "2025-07-27",
+      "session": 2,
+      "durationMinutes": 50,
+      "personalBest": true
+    }
+  ]
+}

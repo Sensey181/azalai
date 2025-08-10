@@ -38,7 +38,7 @@ const DayDetailHeader = ({ day }: { day: DayPlan | null }) => {
   if (!day) {
     return (
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Select a day</Text>
+        <Text style={styles.headerDateText}>Select a day</Text>
       </View>
     );
   }
@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     marginBottom: 15,
   },
+  
   headerDateText: {
     color: '#fff',
     fontSize: 16,
