@@ -4,7 +4,7 @@ export const getSessionInfo = (session: number) => {
     case 1:
       return { text: 'Strength & Power', shortText: 'S1', icon: 'barbell', color: '#3b82f6' };
     case 2:
-      return { text: 'Cardio & HIIT', shortText: 'S2', icon: 'heart', color: '#22c55e' };
+      return { text: 'Cardio & Endurance', shortText: 'S2', icon: 'heart', color: '#22c55e' };
     case 3:
       return { text: 'Technique & Skills', shortText: 'S3', icon: 'school', color: '#f97316' };
     case 4:

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import exercisesData from '../assets/data/exercises.json';
 import trainingPlan from '../assets/data/trainingPlan.json';
-import { getSessionInfo } from '../services/sessionHelpers'; // Import the new helper
+import { getSessionInfo } from '../services/sessionHelpers';
 
 interface Session {
   day: number;
@@ -13,33 +13,37 @@ interface Session {
 
 export default function TrainingScreen() {
   const router = useRouter();
-  const [todaysSession, setTodaysSession] = useState<Session | null>(null);
+  const [targetSession, setTargetSession] = useState<Session | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      const findTodaysSession = () => {
-        // By working with UTC dates, we eliminate timezone errors.
+      const findYesterdaysSession = () => {
+        // THIS IS THE DEFINITIVE FIX:
+        // By working with UTC dates for both the start date and today's date,
+        // we eliminate any errors caused by local device timezones.
         const planStartDate = Date.UTC(2025, 7, 1); // August is month 7 (0-indexed)
 
         const today = new Date();
+        // Get the start of today in UTC
         const startOfTodayUTC = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
 
         const diffTime = startOfTodayUTC - planStartDate;
 
         if (diffTime < 0) {
-            setTodaysSession(trainingPlan.plan[0]);
+            setTargetSession(trainingPlan.plan[0]);
             return;
         }
 
+        // This correctly calculates the number of full days passed.
         const dayIndex = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         
-        // Calculate today's day number in the plan (1-based)
+        // The plan is 1-based, so today's day number is the index + 1.
         const todaysDayInPlan = dayIndex + 1;
 
-        // THIS IS THE FIX: Subtract 1 to get yesterday's day number
+        // As requested, we subtract 1 to get yesterday's day number.
         let yesterdaysDayInPlan = todaysDayInPlan - 1;
 
-        // Handle the edge case where today is the first day of the plan
+        // Handle the edge case where today is the first day of the plan.
         if (yesterdaysDayInPlan < 1) {
             yesterdaysDayInPlan = 1; // Default to showing Day 1 if there's no "yesterday"
         }
@@ -50,10 +54,10 @@ export default function TrainingScreen() {
         }
 
         const sessionData = trainingPlan.plan.find(s => s.day === yesterdaysDayInPlan);
-        setTodaysSession(sessionData || trainingPlan.plan[0]);
+        setTargetSession(sessionData || trainingPlan.plan[0]);
       };
       
-      findTodaysSession();
+      findYesterdaysSession();
     }, [])
   );
 
@@ -75,8 +79,8 @@ export default function TrainingScreen() {
     });
   };
 
-  const sessionDetails = todaysSession ? getSessionInfo(todaysSession.session) : null;
-  const isRestDay = todaysSession?.session === 4;
+  const sessionDetails = targetSession ? getSessionInfo(targetSession.session) : null;
+  const isRestDay = targetSession?.session === 4;
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -86,7 +90,6 @@ export default function TrainingScreen() {
       </View>
 
       <View style={styles.section}>
-        {/* Updated section title */}
         <Text style={styles.sectionTitle}>Yesterday's Session</Text>
         {isRestDay ? (
           <View style={styles.restDayBlock}>
@@ -95,19 +98,19 @@ export default function TrainingScreen() {
             <Text style={styles.restDayDescription}>Recovery is key. Take it easy today!</Text>
           </View>
         ) : (
-          todaysSession && sessionDetails && (
+          targetSession && sessionDetails && (
             <View style={styles.nextSessionBlock}>
-              <TouchableOpacity style={styles.nextSessionContent} onPress={() => handleSessionPress(todaysSession)}>
+              <TouchableOpacity style={styles.nextSessionContent} onPress={() => handleSessionPress(targetSession)}>
                 <View style={styles.sessionIconContainer}>
                   <Ionicons name="sparkles-outline" size={32} color="#A020F0" />
                 </View>
                 <View style={styles.sessionInfo}>
                   <Text style={styles.sessionName}>{sessionDetails.text}</Text>
-                  <Text style={styles.sessionDay}>Day {todaysSession.day}</Text>
+                  <Text style={styles.sessionDay}>Day {targetSession.day}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={24} color="#A020F0" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.startButton} onPress={() => handleSessionPress(todaysSession)}>
+              <TouchableOpacity style={styles.startButton} onPress={() => handleSessionPress(targetSession)}>
                 <Text style={styles.startButtonText}>View Session</Text>
               </TouchableOpacity>
             </View>
@@ -132,11 +135,9 @@ export default function TrainingScreen() {
                 onPress={() => handleSessionPress({ day: 0, session: sessionKey })}
               >
                 <View style={styles.savedSessionIcon}>
-                  {/* THIS IS THE FIX: Use the correct icon from the helper */}
                   <Ionicons name={details.icon as any} size={24} color="#A020F0" />
                 </View>
                 <View style={styles.savedSessionInfo}>
-                  {/* Use the consistent name from the helper */}
                   <Text style={styles.savedSessionName}>{details.text}</Text>
                   <Text style={styles.savedSessionDetails}>{sessionData.exercises.length} exercises</Text>
                 </View>
