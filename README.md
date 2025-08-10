@@ -6,6 +6,28 @@ A comprehensive kettlebell training app built with React Native and Expo, featur
 
 KettleMind is your personal kettlebell training companion that helps you stay consistent with your fitness goals. The app provides structured training plans, tracks your progress, and offers voice-guided assistance through an AI chatbot named Graham.
 
+## 🎙️ ElevenLabs Integration
+
+KettleMind leverages **ElevenLabs' cutting-edge Conversational AI** to provide an immersive voice experience:
+
+### 🚀 Key Features
+- **Natural Voice Interaction**: Graham responds with human-like voice quality
+- **Context-Aware Conversations**: Understands training context and user progress
+- **Real-Time Processing**: Instant voice command recognition and response
+- **Personalized Experience**: Adapts to user preferences and training history
+
+### 🔧 Technical Implementation
+- **ElevenLabs API Integration**: Seamless connection to ElevenLabs' voice platform
+- **Voice Command Processing**: Natural language understanding for fitness commands
+- **Response Generation**: Dynamic voice responses based on user interactions
+- **Audio Streaming**: Real-time audio playback for immediate feedback
+
+### 💡 Use Cases
+- **Hands-free Navigation**: Control the app while working out
+- **Workout Guidance**: Receive real-time form corrections and tips
+- **Progress Tracking**: Voice-activated workout logging
+- **Motivation**: Personalized encouragement during challenging sets
+
 ## ✨ Features
 
 ### 🏋️‍♂️ Training Sessions
@@ -27,13 +49,16 @@ KettleMind is your personal kettlebell training companion that helps you stay co
 - Duration tracking
 - Progress visualization
 
-### 🤖 AI Voice Assistant (Graham)
-- Voice-activated training assistant
-- Navigate between app sections
-- Get workout recommendations
-- Receive motivational messages
-- Record completed workouts
-- Access training tips and information
+### 🤖 AI Voice Assistant (Graham) - Powered by ElevenLabs
+- **Voice-activated training assistant** using ElevenLabs Conversational AI
+- **Natural language processing** for intuitive voice commands
+- **Real-time voice interaction** with instant responses
+- Navigate between app sections with voice commands
+- Get personalized workout recommendations
+- Receive motivational messages and encouragement
+- Record completed workouts through voice
+- Access training tips and information via voice queries
+- **Seamless integration** with ElevenLabs' advanced voice technology
 
 ### 📱 Modern UI/UX
 - Clean, intuitive interface
@@ -114,13 +139,31 @@ The app follows a structured 28-day training cycle:
 
 ## 🛠️ Technology Stack
 
+### 🎯 Core Technologies
 - **Framework**: React Native with Expo
+- **Language**: TypeScript
 - **Navigation**: Expo Router
 - **State Management**: React Hooks
 - **Storage**: AsyncStorage
+
+### 🎨 UI/UX
 - **UI Components**: React Native core + Expo Vector Icons
-- **AI Integration**: ElevenLabs Conversational AI
-- **Language**: TypeScript
+- **Styling**: React Native StyleSheet
+- **Icons**: Expo Vector Icons
+- **Responsive Design**: Cross-platform compatibility
+
+### 🤖 AI & Voice Technology
+- **AI Voice Assistant**: [ElevenLabs Conversational AI](https://elevenlabs.io/)
+  - Natural language processing for voice commands
+  - Real-time voice interaction
+  - Personalized training guidance
+  - Motivational voice messages
+- **Voice Integration**: ElevenLabs API for seamless voice interactions
+
+### 📱 Platform Support
+- **iOS**: Native iOS app support
+- **Android**: Native Android app support
+- **Web**: Progressive Web App capabilities
 
 ## 📱 Available Scripts
 
