@@ -9,9 +9,18 @@ import { WebView } from 'react-native-webview';
 
 export default function AnalysisScreen() {
   const [status, setStatus] = useState<'idle' | 'processing' | 'done' | 'loading'>('loading');
-  const [feedback, setFeedback] = useState<string[]>([]);
+  // --- UPDATE: State to hold the results of each check ---
+  const [analysisResults, setAnalysisResults] = useState<Record<string, boolean> | null>(null);
   const webviewRef = useRef<WebView>(null);
   
+  const exerciseName = "Goblet Squat";
+  const analysisChecks = [
+      "Back remains straight",
+      "Squat depth reaches parallel",
+      "Knees track over feet",
+      "Heels stay on the ground"
+  ];
+
   // This HTML now contains more advanced logic for Goblet Squat analysis.
   const htmlContent = `
     <!DOCTYPE html>
@@ -36,6 +45,14 @@ export default function AnalysisScreen() {
         const canvasCtx = canvasElement.getContext('2d');
         const drawingUtils = new DrawingUtils(canvasCtx);
         let poseLandmarker;
+        
+        // --- UPDATE: Object to track the status of each check ---
+        let checks = {
+            "Back remains straight": true,
+            "Squat depth reaches parallel": true,
+            "Knees track over feet": true,
+            "Heels stay on the ground": true
+        };
 
         async function createPoseLandmarker() {
           const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
@@ -44,13 +61,11 @@ export default function AnalysisScreen() {
             runningMode: 'VIDEO',
             numPoses: 1
           });
-          // Notify React Native that the model is ready
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LANDMARKER_READY' }));
         }
         createPoseLandmarker();
 
         function calculateAngle(p1, p2, p3) {
-            // Ensure all points are valid before calculating
             if (!p1 || !p2 || !p3 || !p1.visibility || !p2.visibility || !p3.visibility || p1.visibility < 0.5 || p2.visibility < 0.5 || p3.visibility < 0.5) return null;
             const radians = Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
@@ -72,25 +87,35 @@ export default function AnalysisScreen() {
             drawingUtils.drawLandmarks(landmarks, { radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1), color: 'white' });
             drawingUtils.drawConnectors(landmarks, PoseLandmarker.POSE_CONNECTIONS, { color: '#A020F0', lineWidth: 4 });
             
-            // --- GOBLET SQUAT ANALYSIS LOGIC ---
-            const leftShoulder = landmarks[11];
-            const leftHip = landmarks[23];
-            const leftKnee = landmarks[25];
-            const leftAnkle = landmarks[27];
+            const lShoulder = landmarks[11], rShoulder = landmarks[12];
+            const lHip = landmarks[23], rHip = landmarks[24];
+            const lKnee = landmarks[25], rKnee = landmarks[26];
+            const lAnkle = landmarks[27], rAnkle = landmarks[28];
+            const lHeel = landmarks[29], rHeel = landmarks[30];
 
-            // 1. Check for back straightness (angle between shoulder, hip, and knee)
-            const backAngle = calculateAngle(leftShoulder, leftHip, leftKnee);
-            if (backAngle && backAngle < 150) { // If leaning too far forward
-                window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'FEEDBACK', payload: 'Keep your back straight' }));
+            const isAtBottomOfSquat = lHip && lKnee && lHip.y > lKnee.y;
+
+            const backAngle = calculateAngle(lShoulder, lHip, lKnee);
+            if (backAngle && backAngle < 150) {
+                checks["Back remains straight"] = false;
             }
 
-            // 2. Check for squat depth (angle between hip, knee, and ankle)
-            // We only check for depth when the user is at the bottom of the squat,
-            // which we can approximate by checking if the hip is below the knee.
-            if (leftHip && leftKnee && leftHip.y > leftKnee.y) {
-                const kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
-                if (kneeAngle && kneeAngle > 100) { // If angle is too wide, not deep enough
-                    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'FEEDBACK', payload: 'Go deeper to reach parallel' }));
+            if (isAtBottomOfSquat) {
+                const kneeAngle = calculateAngle(lHip, lKnee, lAnkle);
+                if (kneeAngle && kneeAngle > 100) {
+                    checks["Squat depth reaches parallel"] = false;
+                }
+
+                if (lKnee && rKnee && lAnkle && rAnkle) {
+                    const kneeDistance = Math.abs(rKnee.x - lKnee.x);
+                    const ankleDistance = Math.abs(rAnkle.x - lAnkle.x);
+                    if (kneeDistance < ankleDistance * 0.8) {
+                        checks["Knees track over feet"] = false;
+                    }
+                }
+
+                if ((lHeel && lHeel.visibility < 0.6) || (rHeel && rHeel.visibility < 0.6)) {
+                    checks["Heels stay on the ground"] = false;
                 }
             }
           }
@@ -110,7 +135,8 @@ export default function AnalysisScreen() {
               predictWebcam();
             };
             video.onended = () => {
-              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ANALYSIS_COMPLETE' }));
+              // --- UPDATE: Send the final results when the video ends ---
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ANALYSIS_RESULTS', payload: checks }));
             };
           }
         });
@@ -126,7 +152,8 @@ export default function AnalysisScreen() {
 
     if (!result.canceled && result.assets[0]) {
       setStatus('processing');
-      setFeedback([]);
+      // --- UPDATE: Reset results for new analysis ---
+      setAnalysisResults(null);
       const { uri } = result.assets[0];
       
       const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -148,11 +175,9 @@ export default function AnalysisScreen() {
       case 'LANDMARKER_READY':
         setStatus('idle');
         break;
-      case 'FEEDBACK':
-        // This logic prevents the same feedback message from being added repeatedly
-        setFeedback(prev => prev.includes(data.payload) ? prev : [...prev, data.payload]);
-        break;
-      case 'ANALYSIS_COMPLETE':
+      // --- UPDATE: Handle the final results from the WebView ---
+      case 'ANALYSIS_RESULTS':
+        setAnalysisResults(data.payload);
         setStatus('done');
         break;
       default:
@@ -171,7 +196,7 @@ export default function AnalysisScreen() {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Ionicons name="body-outline" size={32} color="#A020F0" />
-        <Text style={styles.headerSessionText}>Movement Analysis</Text>
+        <Text style={styles.headerSessionText}>Analysis: {exerciseName}</Text>
       </View>
 
       <View style={styles.webviewContainer}>
@@ -196,22 +221,33 @@ export default function AnalysisScreen() {
         )}
       </View>
       
-      {status === 'done' && (
-        <View style={styles.resultsContainer}>
-            <Text style={styles.resultTitle}>Analysis Complete!</Text>
-            {feedback.length > 0 ? (
-                feedback.map((msg, index) => (
-                    <Text key={index} style={styles.feedbackText}>- {msg}</Text>
-                ))
-            ) : (
-                <Text style={styles.feedbackText}>Great form! No major issues detected.</Text>
-            )}
-        </View>
-      )}
+      {/* --- UPDATE: This section is now fully dynamic --- */}
+      <View style={styles.resultsContainer}>
+          <Text style={styles.resultTitle}>
+            {status === 'done' ? 'Analysis Complete!' : 'Key Checkpoints'}
+          </Text>
+          {analysisChecks.map((check, index) => {
+              // Determine the status of the check after analysis is done
+              const isDone = status === 'done';
+              const result = isDone && analysisResults ? analysisResults[check] : null;
+
+              return (
+                <View key={index} style={styles.checkItem}>
+                    <Ionicons 
+                        name={result === true ? "checkmark-circle" : result === false ? "close-circle" : "checkmark-circle-outline"} 
+                        size={20} 
+                        color={result === true ? "#22c55e" : result === false ? "#ef4444" : "#A020F0"} 
+                    />
+                    <Text style={[styles.checkText, isDone && { color: result ? '#22c55e' : '#ef4444' }]}>
+                        {check}
+                    </Text>
+                </View>
+              )
+          })}
+      </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          // THIS IS THE FIX: The button is now only disabled while processing or loading.
           style={[styles.actionButton, (status === 'processing' || status === 'loading') && styles.actionButtonDisabled]}
           onPress={pickAndProcessVideo}
           disabled={status === 'processing' || status === 'loading'}
@@ -289,6 +325,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
+  },
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  checkText: {
+    color: '#ccc',
+    fontSize: 16,
+    marginLeft: 10,
   },
   buttonContainer: {
     marginTop: 20,
