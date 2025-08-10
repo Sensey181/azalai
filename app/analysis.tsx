@@ -1,17 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 // --- MAIN COMPONENT ---
 
 export default function AnalysisScreen() {
-  const [status, setStatus] = useState<'idle' | 'processing' | 'done'>('idle');
+  const [status, setStatus] = useState<'idle' | 'processing' | 'done' | 'loading'>('loading');
   const [feedback, setFeedback] = useState<string[]>([]);
   const webviewRef = useRef<WebView>(null);
   
+  // This HTML now contains more advanced logic for Goblet Squat analysis.
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -43,12 +44,14 @@ export default function AnalysisScreen() {
             runningMode: 'VIDEO',
             numPoses: 1
           });
+          // Notify React Native that the model is ready
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LANDMARKER_READY' }));
         }
         createPoseLandmarker();
 
         function calculateAngle(p1, p2, p3) {
-            if (!p1 || !p2 || !p3) return -1;
+            // Ensure all points are valid before calculating
+            if (!p1 || !p2 || !p3 || !p1.visibility || !p2.visibility || !p3.visibility || p1.visibility < 0.5 || p2.visibility < 0.5 || p3.visibility < 0.5) return null;
             const radians = Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) angle = 360 - angle;
@@ -66,12 +69,29 @@ export default function AnalysisScreen() {
           
           if (results.landmarks && results.landmarks.length > 0) {
             const landmarks = results.landmarks[0];
-            drawingUtils.drawLandmarks(landmarks, { radius: 3, color: 'white' });
+            drawingUtils.drawLandmarks(landmarks, { radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1), color: 'white' });
             drawingUtils.drawConnectors(landmarks, PoseLandmarker.POSE_CONNECTIONS, { color: '#A020F0', lineWidth: 4 });
             
-            const backAngle = calculateAngle(landmarks[11], landmarks[23], landmarks[25]); // L-Shoulder, L-Hip, L-Knee
-            if (backAngle !== -1 && backAngle < 160) {
-                window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'FEEDBACK', payload: 'Keep back straight' }));
+            // --- GOBLET SQUAT ANALYSIS LOGIC ---
+            const leftShoulder = landmarks[11];
+            const leftHip = landmarks[23];
+            const leftKnee = landmarks[25];
+            const leftAnkle = landmarks[27];
+
+            // 1. Check for back straightness (angle between shoulder, hip, and knee)
+            const backAngle = calculateAngle(leftShoulder, leftHip, leftKnee);
+            if (backAngle && backAngle < 150) { // If leaning too far forward
+                window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'FEEDBACK', payload: 'Keep your back straight' }));
+            }
+
+            // 2. Check for squat depth (angle between hip, knee, and ankle)
+            // We only check for depth when the user is at the bottom of the squat,
+            // which we can approximate by checking if the hip is below the knee.
+            if (leftHip && leftKnee && leftHip.y > leftKnee.y) {
+                const kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+                if (kneeAngle && kneeAngle > 100) { // If angle is too wide, not deep enough
+                    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'FEEDBACK', payload: 'Go deeper to reach parallel' }));
+                }
             }
           }
           
@@ -129,6 +149,7 @@ export default function AnalysisScreen() {
         setStatus('idle');
         break;
       case 'FEEDBACK':
+        // This logic prevents the same feedback message from being added repeatedly
         setFeedback(prev => prev.includes(data.payload) ? prev : [...prev, data.payload]);
         break;
       case 'ANALYSIS_COMPLETE':
@@ -138,16 +159,21 @@ export default function AnalysisScreen() {
         break;
     }
   };
+  
+  const getButtonText = () => {
+      if (status === 'processing') return 'Processing...';
+      if (status === 'done') return 'Analyze Another Video';
+      if (status === 'loading') return 'Loading Engine...';
+      return 'Analyze Video';
+  }
 
   return (
     <View style={styles.container}>
-      {/* --- Header --- */}
       <View style={styles.headerContainer}>
         <Ionicons name="body-outline" size={32} color="#A020F0" />
         <Text style={styles.headerSessionText}>Movement Analysis</Text>
       </View>
 
-      {/* --- Video Player --- */}
       <View style={styles.webviewContainer}>
         <WebView
             ref={webviewRef}
@@ -162,54 +188,43 @@ export default function AnalysisScreen() {
             onError={(e) => console.error('WebView Error:', e.nativeEvent)}
             onLoadStart={() => setStatus('loading')}
         />
-        {status === 'loading' && (
+        {(status === 'loading' || status === 'processing') && (
             <View style={styles.activityIndicatorContainer}>
                 <ActivityIndicator size="large" color="#A020F0" />
+                <Text style={styles.processingText}>{status === 'processing' ? 'Analyzing...' : ''}</Text>
             </View>
         )}
       </View>
       
-      {/* --- Results & Feedback --- */}
-      {(status === 'processing' || status === 'done') && (
+      {status === 'done' && (
         <View style={styles.resultsContainer}>
-            {status === 'processing' && <Text style={styles.feedbackText}>Analyzing your form...</Text>}
-            {status === 'done' && (
-                <>
-                    <Text style={styles.resultTitle}>Analysis Complete!</Text>
-                    {feedback.length > 0 ? (
-                        feedback.map((msg, index) => (
-                            <Text key={index} style={styles.feedbackText}>- {msg}</Text>
-                        ))
-                    ) : (
-                        <Text style={styles.feedbackText}>Great form! No issues detected.</Text>
-                    )}
-                </>
+            <Text style={styles.resultTitle}>Analysis Complete!</Text>
+            {feedback.length > 0 ? (
+                feedback.map((msg, index) => (
+                    <Text key={index} style={styles.feedbackText}>- {msg}</Text>
+                ))
+            ) : (
+                <Text style={styles.feedbackText}>Great form! No major issues detected.</Text>
             )}
         </View>
       )}
 
-      {/* --- Action Button --- */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.actionButton, status !== 'idle' && styles.actionButtonDisabled]}
+          // THIS IS THE FIX: The button is now only disabled while processing or loading.
+          style={[styles.actionButton, (status === 'processing' || status === 'loading') && styles.actionButtonDisabled]}
           onPress={pickAndProcessVideo}
-          disabled={status !== 'idle'}
+          disabled={status === 'processing' || status === 'loading'}
         >
-          <Text style={styles.actionButtonText}>
-            {status === 'processing' ? 'Processing...' : 'Analyze New Video'}
-          </Text>
-          <Ionicons 
-            name="videocam-outline"
-            size={24} 
-            color="white" 
-          />
+          <Text style={styles.actionButtonText}>{getButtonText()}</Text>
+          <Ionicons name="videocam-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-// --- STYLES (inspired by planning.tsx) ---
+// --- STYLES ---
 
 const styles = StyleSheet.create({
   container: {
@@ -249,6 +264,12 @@ const styles = StyleSheet.create({
       bottom: 0,
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  processingText: {
+      color: 'white',
+      marginTop: 10,
+      fontSize: 16,
   },
   resultsContainer: {
     marginTop: 20,
@@ -266,6 +287,7 @@ const styles = StyleSheet.create({
   feedbackText: {
     color: '#ccc',
     fontSize: 16,
+    lineHeight: 24,
     textAlign: 'center',
   },
   buttonContainer: {
