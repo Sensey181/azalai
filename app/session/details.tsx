@@ -22,7 +22,17 @@ export default function SessionDetailsScreen() {
       timer: selectedTimer,
       isSaved
     });
-    // TODO: Navigate to actual workout screen
+    // Navigate to workout screen with session parameters
+    router.push({
+      pathname: '/session/workout',
+      params: {
+        timerType: selectedTimer,
+        sessionName: 'My Custom Strength',
+        sessionDetails: '45 min • 8 exercises',
+        isFilmed: isFilmed.toString(),
+        isSaved: isSaved.toString()
+      }
+    });
   };
 
   const handleModifySession = () => {
