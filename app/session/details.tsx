@@ -1,12 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
+interface Exercise {
+  name: string;
+  details: string;
+}
+
 export default function SessionDetailsScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+
+  // Safely parse the data passed from the previous screen with defaults
+  const sessionName = params.sessionName as string || 'Workout';
+  const exercises: Exercise[] = params.exercises ? JSON.parse(params.exercises as string) : [];
+
   const [isFilmed, setIsFilmed] = useState(false);
-  const [isSaved, setIsSaved] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
   const [timerModalVisible, setTimerModalVisible] = useState(false);
   const [selectedTimer, setSelectedTimer] = useState('emom');
 
@@ -17,157 +28,94 @@ export default function SessionDetailsScreen() {
   ];
 
   const handleStartSession = () => {
-    console.log('Starting session with settings:', {
-      isFilmed,
-      timer: selectedTimer,
-      isSaved
-    });
-    // Navigate to workout screen with session parameters
     router.push({
       pathname: '/session/workout',
       params: {
         timerType: selectedTimer,
-        sessionName: 'My Custom Strength',
-        sessionDetails: '45 min • 8 exercises',
-        isFilmed: isFilmed.toString(),
-        isSaved: isSaved.toString()
-      }
+        sessionName: sessionName,
+        exercises: JSON.stringify(exercises),
+        sessionType: params.sessionType,
+      },
     });
   };
 
-  const handleModifySession = () => {
-    console.log('Modify session pressed');
-    // TODO: Navigate to session editor
-  };
-
-  const handleSaveToggle = () => {
-    setIsSaved(!isSaved);
-    console.log('Session saved:', !isSaved);
-  };
-
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Session Details</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      {/* Session Info Card */}
-      <View style={styles.sessionCard}>
-        <View style={styles.sessionHeader}>
-          <View style={styles.sessionIcon}>
-            <Ionicons name="barbell-outline" size={32} color="#A020F0" />
-          </View>
-          <View style={styles.sessionInfo}>
-            <Text style={styles.sessionName}>My Custom Strength</Text>
-            <Text style={styles.sessionDetails}>45 min • 8 exercises</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Options Section */}
-      <View style={styles.optionsSection}>
-        <Text style={styles.sectionTitle}>Session Options</Text>
-
-        {/* Modify Session */}
-        <TouchableOpacity style={styles.optionItem} onPress={handleModifySession}>
-          <View style={styles.optionLeft}>
-            <View style={styles.optionIcon}>
-              <Ionicons name="create-outline" size={20} color="#A020F0" />
-            </View>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>Modify Session</Text>
-              <Text style={styles.optionDescription}>Edit exercises and settings</Text>
-            </View>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
-
-        {/* Filming Toggle */}
-        <View style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={styles.optionIcon}>
-              <Ionicons name="videocam-outline" size={20} color="#A020F0" />
-            </View>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>Record Session</Text>
-              <Text style={styles.optionDescription}>Film your workout for analysis</Text>
-            </View>
-          </View>
-          <Switch
-            value={isFilmed}
-            onValueChange={setIsFilmed}
-            trackColor={{ false: '#333', true: '#A020F0' }}
-            thumbColor={isFilmed ? '#fff' : '#f4f3f4'}
-          />
+    <>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Session Details</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        {/* Timer Settings */}
-        <TouchableOpacity 
-          style={styles.optionItem} 
-          onPress={() => setTimerModalVisible(true)}
-        >
-          <View style={styles.optionLeft}>
-            <View style={styles.optionIcon}>
-              <Ionicons name="timer-outline" size={20} color="#A020F0" />
+        {/* Session Info Card */}
+        <View style={styles.sessionCard}>
+          <View style={styles.sessionHeader}>
+            <View style={styles.sessionIcon}>
+              <Ionicons name="barbell-outline" size={32} color="#A020F0" />
             </View>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>Timer Settings</Text>
-              <Text style={styles.optionDescription}>
-                {timerOptions.find(t => t.id === selectedTimer)?.name || 'EMOM'}
-              </Text>
+            <View style={styles.sessionInfo}>
+              <Text style={styles.sessionName}>{sessionName}</Text>
+              <Text style={styles.sessionDetails}>{exercises.length} exercises</Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
+        </View>
 
-        {/* Save/Unsave Toggle */}
-        <TouchableOpacity style={styles.optionItem} onPress={handleSaveToggle}>
-          <View style={styles.optionLeft}>
-            <View style={styles.optionIcon}>
-              <Ionicons 
-                name={isSaved ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color="#A020F0" 
-              />
+        {/* Exercise List */}
+        <View style={styles.exerciseSection}>
+          <Text style={styles.sectionTitle}>Exercises</Text>
+          {exercises.map((exercise, index) => (
+            <View key={index} style={styles.exerciseItem}>
+              <Text style={styles.exerciseNumber}>{index + 1}</Text>
+              <View>
+                <Text style={styles.exerciseName}>{exercise.name}</Text>
+                <Text style={styles.exerciseDetails}>{exercise.details}</Text>
+              </View>
             </View>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>
-                {isSaved ? 'Saved Session' : 'Save Session'}
-              </Text>
-              <Text style={styles.optionDescription}>
-                {isSaved ? 'Remove from saved sessions' : 'Add to saved sessions'}
-              </Text>
+          ))}
+        </View>
+
+        {/* Options Section */}
+        <View style={styles.optionsSection}>
+          <Text style={styles.sectionTitle}>Session Options</Text>
+          {/* Filming Toggle */}
+          <View style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={styles.optionIcon}><Ionicons name="videocam-outline" size={20} color="#A020F0" /></View>
+              <View style={styles.optionText}><Text style={styles.optionTitle}>Record Session</Text></View>
             </View>
+            <Switch value={isFilmed} onValueChange={setIsFilmed} trackColor={{ false: '#333', true: '#A020F0' }} thumbColor={'#fff'} />
           </View>
-          <Ionicons 
-            name={isSaved ? "checkmark-circle" : "add-circle-outline"} 
-            size={20} 
-            color={isSaved ? "#4CAF50" : "#888"} 
-          />
-        </TouchableOpacity>
-      </View>
+          {/* Timer Settings */}
+          <TouchableOpacity style={styles.optionItem} onPress={() => setTimerModalVisible(true)}>
+            <View style={styles.optionLeft}>
+              <View style={styles.optionIcon}><Ionicons name="timer-outline" size={20} color="#A020F0" /></View>
+              <View style={styles.optionText}><Text style={styles.optionTitle}>Timer Settings</Text></View>
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={styles.optionDescription}>{timerOptions.find(t => t.id === selectedTimer)?.name}</Text>
+                <Ionicons name="chevron-forward" size={20} color="#888" />
+            </View>
+          </TouchableOpacity>
+        </View>
 
-      {/* Start Session Button */}
-      <View style={styles.startSection}>
-        <TouchableOpacity style={styles.startButton} onPress={handleStartSession}>
-          <Ionicons name="play" size={24} color="white" />
-          <Text style={styles.startButtonText}>Start Session</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Start Session Button */}
+        <View style={styles.startSection}>
+          <TouchableOpacity style={styles.startButton} onPress={handleStartSession}>
+            <Ionicons name="play" size={24} color="white" />
+            <Text style={styles.startButtonText}>Start Session</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       {/* Timer Selection Modal */}
       <Modal
         visible={timerModalVisible}
-        transparent={true}
-        animationType="slide"
+        transparent={true} // Re-enabled for a clean pop-up effect
+        animationType="fade"
         onRequestClose={() => setTimerModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
@@ -206,7 +154,7 @@ export default function SessionDetailsScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </>
   );
 }
 
@@ -245,8 +193,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#333',
   },
   sessionHeader: {
     flexDirection: 'row',
@@ -274,15 +220,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
   },
-  optionsSection: {
+  exerciseSection: {
     paddingHorizontal: 20,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: 'white',
     marginBottom: 16,
+  },
+  exerciseItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
+  },
+  exerciseNumber: {
+    width: 30,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#A020F0',
+    lineHeight: 24,
+  },
+  exerciseName: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: '500',
+  },
+  exerciseDetails: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
+  optionsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
+    marginTop: 20,
   },
   optionItem: {
     flexDirection: 'row',
@@ -292,8 +267,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#333',
   },
   optionLeft: {
     flexDirection: 'row',
@@ -316,11 +289,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: 'white',
-    marginBottom: 2,
   },
   optionDescription: {
     fontSize: 14,
     color: '#888',
+    marginRight: 8,
   },
   startSection: {
     paddingHorizontal: 20,
@@ -333,11 +306,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#A020F0',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   startButtonText: {
     color: 'white',
@@ -345,17 +313,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  // Modal styles updated for stability
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Dark overlay
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
     backgroundColor: '#1e1e1e',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
     padding: 20,
-    maxHeight: '60%',
+    width: '90%',
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -384,12 +354,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#333',
   },
   timerOptionSelected: {
     borderColor: '#A020F0',
-    backgroundColor: '#2a1e2a',
+    borderWidth: 2,
   },
   timerOptionContent: {
     flex: 1,

@@ -1,28 +1,30 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import historyData from '../assets/data/workoutHistory.json';
+import { getHistory } from '../services/storage'; // Import from storage
 
-// We can reuse the session info helper from the planning screen
-const getSessionInfo = (session: number) => {
-  switch (session) {
-    case 1:
-      return { text: 'Beast mode', icon: 'barbell', color: '#3b82f6' };
-    case 2:
-      return { text: 'Medium', icon: 'heart', color: '#22c55e' };
-    case 3:
-      return { text: 'Easy', icon: 'school', color: '#f97316' };
-    default:
-      return { text: 'Unknown Session', icon: 'help', color: '#6b7280' };
-  }
-};
-
-interface HistoryItem {
+// Define the record structure
+interface WorkoutRecord {
   date: string;
   session: number;
   durationMinutes: number;
   personalBest: boolean;
 }
+
+// Helper function to get session details
+const getSessionInfo = (session: number) => {
+  switch (session) {
+    case 1:
+      return { text: 'Strength & Power', icon: 'barbell', color: '#3b82f6' };
+    case 2:
+      return { text: 'Cardio & Endurance', icon: 'heart', color: '#22c55e' };
+    case 3:
+      return { text: 'Technique & Skills', icon: 'school', color: '#f97316' };
+    default:
+      return { text: 'Unknown Session', icon: 'help', color: '#6b7280' };
+  }
+};
 
 // A small component for each summary statistic
 const SummaryStat = ({ icon, value, label }: { icon: any; value: string | number; label: string }) => (
@@ -34,15 +36,28 @@ const SummaryStat = ({ icon, value, label }: { icon: any; value: string | number
 );
 
 export default function AchievementsScreen() {
+  const [history, setHistory] = useState<WorkoutRecord[]>([]);
+
+  // useFocusEffect runs every time the screen comes into view
+  useFocusEffect(
+    useCallback(() => {
+      const loadHistory = async () => {
+        const loadedHistory = await getHistory();
+        setHistory(loadedHistory);
+      };
+      loadHistory();
+    }, [])
+  );
+
   // Calculate summary stats using useMemo for efficiency
   const summary = useMemo(() => {
-    const totalWorkouts = historyData.history.length;
-    const totalMinutes = historyData.history.reduce((sum, item) => sum + item.durationMinutes, 0);
-    const personalBests = historyData.history.filter(item => item.personalBest).length;
+    const totalWorkouts = history.length;
+    const totalMinutes = history.reduce((sum, item) => sum + item.durationMinutes, 0);
+    const personalBests = history.filter(item => item.personalBest).length;
     return { totalWorkouts, totalMinutes, personalBests };
-  }, []);
+  }, [history]);
 
-  const renderHistoryItem = ({ item }: { item: HistoryItem }) => {
+  const renderHistoryItem = ({ item }: { item: WorkoutRecord }) => {
     const sessionInfo = getSessionInfo(item.session);
     const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
       month: 'short',
@@ -86,7 +101,7 @@ export default function AchievementsScreen() {
       {/* History List */}
       <Text style={styles.historyTitle}>Workout History</Text>
       <FlatList
-        data={historyData.history}
+        data={history}
         renderItem={renderHistoryItem}
         keyExtractor={(item) => item.date}
         showsVerticalScrollIndicator={false}
