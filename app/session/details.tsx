@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
 interface Exercise {
@@ -12,9 +12,21 @@ export default function SessionDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  // Safely parse the data passed from the previous screen with defaults
-  const sessionName = params.sessionName as string || 'Workout';
-  const exercises: Exercise[] = params.exercises ? JSON.parse(params.exercises as string) : [];
+  const [sessionName, setSessionName] = useState('Workout');
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+
+  // THIS IS THE FIX:
+  // We now depend on the specific primitive values from `params` (strings),
+  // not the `params` object itself. This prevents the infinite loop.
+  useEffect(() => {
+    if (params.sessionName) {
+      setSessionName(params.sessionName as string);
+    }
+    if (params.exercises) {
+      setExercises(JSON.parse(params.exercises as string));
+    }
+  }, [params.sessionName, params.exercises]);
+
 
   const [isFilmed, setIsFilmed] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -114,7 +126,7 @@ export default function SessionDetailsScreen() {
       {/* Timer Selection Modal */}
       <Modal
         visible={timerModalVisible}
-        transparent={true} // Re-enabled for a clean pop-up effect
+        transparent={true}
         animationType="fade"
         onRequestClose={() => setTimerModalVisible(false)}
       >
