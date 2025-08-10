@@ -8,7 +8,7 @@ import { addWorkoutToHistory } from '../../services/storage';
 interface Exercise {
   name: string;
   details: string;
-  gifUrl: string;
+  imageUrl: string; // Changed from gifUrl
 }
 
 export default function WorkoutScreen() {
@@ -130,7 +130,8 @@ export default function WorkoutScreen() {
 
       <View style={styles.contentContainer}>
         <Image 
-            source={{ uri: currentExercise?.gifUrl }} 
+            // THIS IS THE FIX: Changed from gifUrl to imageUrl
+            source={{ uri: currentExercise?.imageUrl }} 
             style={styles.gif}
             resizeMode="contain"
         />
