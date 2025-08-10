@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 
 // This is the custom component for the central button
@@ -31,21 +32,29 @@ const ChatbotButton = ({ focused }: { focused: boolean }) => (
 );
 
 export default function TabLayout() {
+  const pathname = usePathname();
+  const isSessionScreen = pathname.startsWith('/session');
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false, // We hide labels to keep it clean with the central button
-        tabBarStyle: {
+    <>
+      <StatusBar style="light" backgroundColor="#121212" />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false, // We hide labels to keep it clean with the central button
+                  tabBarStyle: {
           backgroundColor: '#1e1e1e',
           borderTopWidth: 0,
           elevation: 0,
-          height: 70,
+          height: isSessionScreen ? 0 : 70,
+          opacity: isSessionScreen ? 0 : 1,
+          position: isSessionScreen ? 'absolute' : 'relative',
+          bottom: isSessionScreen ? -100 : 0,
         },
-        tabBarActiveTintColor: '#A020F0',
-        tabBarInactiveTintColor: '#888',
-      }}
-    >
+          tabBarActiveTintColor: '#A020F0',
+          tabBarInactiveTintColor: '#888',
+        }}
+      >
       <Tabs.Screen
         name="index" // Training
         options={{
@@ -98,6 +107,7 @@ export default function TabLayout() {
           href: null, // This hides it from the tab bar
         }}
       />
-    </Tabs>
+      </Tabs>
+    </>
   );
 }

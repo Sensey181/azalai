@@ -28,6 +28,20 @@ export default function TrainingScreen() {
     router.push('/session/details');
   };
 
+  const handleStartSessionDirectly = () => {
+    // Navigate directly to workout session
+    router.push({
+      pathname: '/session/workout',
+      params: {
+        timerType: 'emom',
+        sessionName: nextSession ? getSessionName(nextSession.session) : 'Next Session',
+        sessionDetails: '45 min • 8 exercises',
+        isFilmed: 'false',
+        isSaved: 'false'
+      }
+    });
+  };
+
   const getSessionName = (sessionNumber: number) => {
     const sessionNames = {
       1: 'Strength Training',
@@ -59,8 +73,8 @@ export default function TrainingScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Next Session</Text>
         {nextSession && (
-          <TouchableOpacity style={styles.nextSessionBlock} onPress={handleNextSessionPress}>
-            <View style={styles.nextSessionContent}>
+          <View style={styles.nextSessionBlock}>
+            <TouchableOpacity style={styles.nextSessionContent} onPress={handleNextSessionPress}>
               <View style={styles.sessionIconContainer}>
                 <Ionicons 
                   name={getSessionIcon(nextSession.session) as any} 
@@ -72,17 +86,17 @@ export default function TrainingScreen() {
                 <Text style={styles.sessionName}>{getSessionName(nextSession.session)}</Text>
                 <Text style={styles.sessionDay}>Day {nextSession.day}</Text>
                 <Text style={styles.sessionDescription}>
-                  Ready to crush your next workout? Tap to start your session.
+                  Ready to crush your next workout? Tap to view session details.
                 </Text>
               </View>
               <View style={styles.arrowContainer}>
                 <Ionicons name="chevron-forward" size={24} color="#A020F0" />
               </View>
-            </View>
-            <View style={styles.startButton}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={handleStartSessionDirectly}>
               <Text style={styles.startButtonText}>Start Session</Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
 
