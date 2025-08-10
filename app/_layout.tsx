@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs, usePathname } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
+import { initializePlan } from '../services/storage'; // Import the new function
+
+
 
 // This is the custom component for the central button
 const ChatbotButton = ({ focused }: { focused: boolean }) => (
@@ -32,12 +35,14 @@ const ChatbotButton = ({ focused }: { focused: boolean }) => (
 );
 
 export default function TabLayout() {
+  useEffect(() => {
+    initializePlan();
+  }, []);
   const pathname = usePathname();
   const isSessionScreen = pathname.startsWith('/session');
 
   return (
     <>
-      <StatusBar style="light" backgroundColor="#121212" />
       <Tabs
         screenOptions={{
           headerShown: false,
