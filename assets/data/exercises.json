@@ -2,27 +2,27 @@
   "sessions": {
     "1": {
       "exercises": [
-        { "name": "Kettlebell Swings", "details": "3 sets of 12 reps", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3VqZzZqY3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l41lP9pk4n23pG1mU/giphy.gif" },
-        { "name": "Goblet Squats", "details": "3 sets of 10 reps", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3o7TKU8i3B3b522c5a/giphy.gif" },
-        { "name": "Single-Arm Overhead Press", "details": "3 sets of 8 reps per side", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3oKIPa8AOoA2W26nO8/giphy.gif" },
-        { "name": "Bent-Over Rows", "details": "3 sets of 10 reps per side", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3oKIPf6a7aT5k8E0GA/giphy.gif" },
-        { "name": "Turkish Get-Up Practice", "details": "5 minutes", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l0HlW7kU0A2sddXMc/giphy.gif" }
+        { "name": "Kettlebell Swings", "details": "3 sets of 12 reps", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-swing.jpg" },
+        { "name": "Goblet Squats", "details": "3 sets of 10 reps", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-goblet-squat.jpg" },
+        { "name": "Single-Arm Overhead Press", "details": "3 sets of 8 reps per side", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-one-arm-push-press.jpg" },
+        { "name": "Bent-Over Rows", "details": "3 sets of 10 reps per side", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg" },
+        { "name": "Turkish Get-Up Practice", "details": "5 minutes", "imageUrl": "https://i.ytimg.com/vi/saYKvqSscuY/maxresdefault.jpg" }
       ]
     },
     "2": {
       "exercises": [
-        { "name": "High-Intensity Interval Sprints", "details": "8 rounds of 30s on, 30s off", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3VqZzZqY3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l41lP9pk4n23pG1mU/giphy.gif" },
-        { "name": "Alternating Swings", "details": "5 minutes continuous", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3VqZzZqY3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l41lP9pk4n23pG1mU/giphy.gif" },
-        { "name": "Burpee Deadlifts", "details": "3 sets of 10 reps", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3o7TKU8i3B3b522c5a/giphy.gif" },
-        { "name": "Jump Rope", "details": "10 minutes", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3oKIPa8AOoA2W26nO8/giphy.gif" }
+        { "name": "High-Intensity Interval Sprints", "details": "8 rounds of 30s on, 30s off", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/high-knee-sprints.jpg" },
+        { "name": "Alternating Swings", "details": "5 minutes continuous", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-swing.jpg" },
+        { "name": "Burpee Deadlifts", "details": "3 sets of 10 reps", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-burpee.jpg" },
+        { "name": "Jump Rope", "details": "10 minutes", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/skip-jump-rope.jpg" }
       ]
     },
     "3": {
       "exercises": [
-        { "name": "Kettlebell Halos", "details": "3 sets of 10 reps per direction", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3oKIPf6a7aT5k8E0GA/giphy.gif" },
-        { "name": "Windmills", "details": "3 sets of 8 reps per side", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l0HlW7kU0A2sddXMc/giphy.gif" },
-        { "name": "Cleans", "details": "5 sets of 5 reps per side", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3VqZzZqY3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/l41lP9pk4n23pG1mU/giphy.gif" },
-        { "name": "Snatches", "details": "5 sets of 5 reps per side", "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXo2Z3p2eWRwN3NqM2w4cTR5eGNzZzZqY3p2eWRwN3NqM2w4cQ/3o7TKU8i3B3b522c5a/giphy.gif" }
+        { "name": "Kettlebell Slingshot", "details": "3 sets of 10 reps per direction", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-slingshot.jpg" },
+        { "name": "Windmills", "details": "3 sets of 8 reps per side", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-windmill.jpg" },
+        { "name": "Cleans", "details": "5 sets of 5 reps per side", "imageUrl": "https://i.pinimg.com/736x/09/4c/48/094c4828fe76afeb182c0a9b60d10d10.jpg" },
+        { "name": "Snatches", "details": "5 sets of 5 reps per side", "imageUrl": "https://liftmanual.com/wp-content/uploads/2023/04/kettlebell-snatch.jpg" }
       ]
     }
   }
