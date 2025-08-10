@@ -8,7 +8,7 @@ KettleMind is your personal kettlebell training companion that helps you stay co
 
 ## 🎙️ ElevenLabs Integration
 
-KettleMind leverages **ElevenLabs' cutting-edge Conversational AI** to provide an immersive voice experience:
+KettleMind leverages **ElevenLabs' cutting-edge Conversational AI** to provide an immersive voice experience. (Full integration not completed):
 
 ### 🚀 Key Features
 - **Natural Voice Interaction**: Graham responds with human-like voice quality
