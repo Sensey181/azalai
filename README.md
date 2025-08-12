@@ -1,5 +1,7 @@
 # KettleMind 🏋️‍♂️
 
+<img width="1920" height="1080" alt="Présentation Global AI Hackathon" src="https://github.com/user-attachments/assets/5f94d4b4-41c3-4a6d-a3c9-6cc23b297167" />
+
 A comprehensive kettlebell training app built with React Native and Expo, featuring AI-powered voice assistance through ElevenLabs integration.
 
 ## 🎯 Overview
